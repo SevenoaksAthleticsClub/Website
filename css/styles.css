@@ -898,10 +898,11 @@ textarea { min-height: 140px; resize: vertical; }
   margin: 1.1rem 0 0.4rem;
 }
 
-.committee {
+.roster {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.7rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem 2.4rem;
+  align-items: start;
 }
 
 .map-card {
@@ -1072,7 +1073,7 @@ html.reports-pending [data-home-reports] {
 }
 
 @media (max-width: 900px) {
-  .timetable, .cards, .cards-2, .cards-compact, .fees, .split, .offer, .contact-grid, .footer-grid, .committee {
+  .timetable, .cards, .cards-2, .cards-compact, .fees, .split, .offer, .contact-grid, .footer-grid, .roster {
     grid-template-columns: 1fr;
   }
   .event-row { grid-template-columns: 1fr; }
