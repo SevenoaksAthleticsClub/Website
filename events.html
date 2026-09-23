@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Events · Sevenoaks Athletics Club</title>
+  <meta name="description" content="Sevenoaks AC club calendar — weekly training, KFL, Kent League, open races and club events.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="events">
+  <a class="skip" href="#main">Skip to content</a>
+  <div data-header></div>
+
+  <header class="hero page-hero">
+    <img class="hero-bg" src="images/race-park.jpg" alt="Runners racing through parkland with marshals">
+    <div class="wrap hero-copy">
+      <span class="kicker">Calendar</span>
+      <h1>What’s on.</h1>
+      <p class="lead">Club nights every week. Races when you want them. Our own Sevenoaks 7 each July.</p>
+    </div>
+  </header>
+
+  <main id="main">
+    <section>
+      <div class="wrap">
+          <div class="weekly-strip">
+            <div class="section-head">
+              <div>
+                <h2>Every week</h2>
+                <p class="sub">These don’t move. Contact us before your first Tuesday.</p>
+              </div>
+              <a class="link-more" href="train.html">Training details →</a>
+            </div>
+            <div class="timetable">
+              <article class="session">
+                <div class="day">Tue</div>
+                <div class="time">18:15 &amp; 19:00</div>
+                <p>Club run — Speedy and Steady groups, 5 or 7 miles.</p>
+                <p class="where">Sennocke Centre, Sevenoaks School</p>
+              </article>
+              <article class="session">
+                <div class="day">Thu</div>
+                <div class="time">18:30</div>
+                <p>Track intervals.</p>
+                <p class="where">Sevenoaks School track</p>
+              </article>
+              <article class="session">
+                <div class="day">Sun</div>
+                <div class="time">09:00 – 10:00</div>
+                <p>Senior track session.</p>
+                <p class="where">Sevenoaks School track</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="series-strip" id="series">
+            <div class="section-head">
+              <div>
+                <h2>Series we race</h2>
+                <p class="sub">Wear the vest and you’re racing for Sevenoaks. Filter the calendar below once you know which series you fancy.</p>
+              </div>
+            </div>
+            <div class="cards series-cards">
+              <article class="card series-card series-kfl">
+                <div class="card-body">
+                  <span class="tag series-kfl">KFL</span>
+                  <h3>Kent Fitness League</h3>
+                  <p>Winter cross country for club runners — about 5–6 miles, on Sunday mornings at parks across Kent. We host a match at Knole.</p>
+                  <a class="link-more" href="racing.html#kfl">More information →</a>
+                </div>
+              </article>
+              <article class="card series-card series-kent-league">
+                <div class="card-body">
+                  <span class="tag series-kent-league">Kent League</span>
+                  <h3>Kent XC League</h3>
+                  <p>Saturday cross country through the autumn and winter, from juniors to senior men and women. No upper time limit.</p>
+                  <a class="link-more" href="racing.html#kent-league">More information →</a>
+                </div>
+              </article>
+              <article class="card series-card series-kent-gp">
+                <div class="card-body">
+                  <span class="tag series-kent-gp">Kent GP</span>
+                  <h3>Kent Grand Prix</h3>
+                  <p>A season of 10 Kent road races, from 5 miles and 10K to half marathon. Best six count for individuals; best eight rounds for the team.</p>
+                  <a class="link-more" href="racing.html#kent-gp">More information →</a>
+                </div>
+              </article>
+              <article class="card series-card series-kent-champs">
+                <div class="card-body">
+                  <span class="tag series-kent-champs">Kent Champs</span>
+                  <h3>County Championships</h3>
+                  <p>Kent championships on the road, over the country and on the track. Some also count for the Grand Prix.</p>
+                  <a class="link-more" href="racing.html#kent-champs">More information →</a>
+                </div>
+              </article>
+              <article class="card series-card series-track-and-field">
+                <div class="card-body">
+                  <span class="tag series-track-and-field">Track &amp; field</span>
+                  <h3>Track &amp; Field</h3>
+                  <p>Sprints, jumps, throws and middle-distance, including the over-35s league and Kent Masters.</p>
+                  <a class="link-more" href="racing.html#track-and-field">More information →</a>
+                </div>
+              </article>
+              <article class="card series-card series-open-race">
+                <div class="card-body">
+                  <span class="tag series-open-race">Open race</span>
+                  <h3>Open Road Races</h3>
+                  <p>Local 10ks, trails, parkrun and whatever members are training for. No obligation.</p>
+                  <a class="link-more" href="racing.html#open-races">More information →</a>
+                </div>
+              </article>
+            </div>
+            <p class="sub series-note">Want the fuller picture — who to ask, how the leagues work? See <a class="link-more" href="racing.html">competitive events</a>. Club Grand Prix tables are under <a class="link-more" href="grand-prix.html">Members</a>. Juniors have their own leagues — Sportshall, the Kent Young Athletes League and county champs. See <a class="link-more" href="juniors.html">Juniors</a>.</p>
+          </div>
+
+          <div class="club-cal" id="races" data-calendar>
+            <div class="section-head">
+              <div>
+                <h2>Races &amp; events</h2>
+                <p class="sub">Only the days with a race or club event.</p>
+              </div>
+            </div>
+            <div class="cal-filters" data-cal-filters></div>
+            <div class="event-list" data-cal-list></div>
+            <p class="sub" data-cal-note style="margin-top:1.2rem"></p>
+            <p class="sub" style="margin-top:0.6rem"><a class="link-more" href="past.html">Reports →</a></p>
+          </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-footer></div>
+  <script src="js/site.js"></script>
+  <script src="js/calendar.js"></script>
+</body>
+</html>

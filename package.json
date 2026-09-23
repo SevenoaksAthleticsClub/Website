@@ -1,0 +1,11 @@
+{
+  "name": "sevenoaks-ac",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/reports.test.js",
+    "import-news": "node scripts/import-news.js",
+    "normalize-reports": "node scripts/normalize-report-body.js",
+    "import-race-links": "node scripts/import-race-links.js"
+  }
+}
