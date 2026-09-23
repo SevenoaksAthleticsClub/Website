@@ -904,6 +904,12 @@ textarea { min-height: 140px; resize: vertical; }
   gap: 2rem 2.4rem;
   align-items: start;
 }
+.roster .person {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: baseline;
+  column-gap: 1rem;
+}
 
 .map-card {
   border-radius: 20px;
