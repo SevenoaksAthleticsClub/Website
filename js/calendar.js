@@ -137,15 +137,26 @@
     });
   }
 
+  function isHomeLabel(label) {
+    const key = slug(label);
+    return key === "home" || key === "home-fixture" || key === "home-fixtures";
+  }
+
+  function filterKey(label) {
+    return isHomeLabel(label) ? "home-fixtures" : slug(label);
+  }
+
   function uniqueLabels() {
     const seen = {};
     const out = [];
     EVENTS.forEach((ev) => {
-      if (!seen[ev.slug]) {
-        seen[ev.slug] = true;
-        out.push(ev.label);
+      const key = filterKey(ev.label);
+      if (!seen[key]) {
+        seen[key] = true;
+        out.push(key === "home-fixtures" ? "Home fixtures" : ev.label);
       }
     });
+    if (!seen["home-fixtures"]) out.push("Home fixtures");
     return out;
   }
 
@@ -153,7 +164,7 @@
     const buttons = [`<button type="button" class="cal-filter is-on" data-filter="all" aria-pressed="true">All races</button>`];
     uniqueLabels().forEach((label) => {
       buttons.push(
-        `<button type="button" class="cal-filter" data-filter="${escapeHtml(slug(label))}" aria-pressed="false">${escapeHtml(label)}</button>`
+        `<button type="button" class="cal-filter" data-filter="${escapeHtml(filterKey(label))}" aria-pressed="false">${escapeHtml(label)}</button>`
       );
     });
     filtersEl.innerHTML = buttons.join("");
@@ -199,7 +210,7 @@
             ${heading}
             <p>${escapeHtml(ev.detail)}</p>
           </div>
-          <span class="tag series-${escapeHtml(ev.slug)}">${escapeHtml(ev.label)}</span>
+          <span class="tag series-${escapeHtml(filterKey(ev.label))}">${escapeHtml(isHomeLabel(ev.label) ? "Home fixtures" : ev.label)}</span>
         </article>`;
   }
 
@@ -219,7 +230,7 @@
       btn.setAttribute("aria-pressed", on ? "true" : "false");
     });
 
-    const list = upcoming().filter((ev) => active === "all" || ev.slug === active);
+    const list = upcoming().filter((ev) => active === "all" || filterKey(ev.label) === active);
 
     if (!list.length) {
       listEl.innerHTML = `<p class="sub">No races in this series just now.</p>`;
@@ -241,8 +252,9 @@
       if (active === "all") {
         noteEl.textContent = "Click a race name to open its entry page. Weekly training is listed above.";
       } else {
-        const match = EVENTS.find((ev) => ev.slug === active);
-        noteEl.textContent = match ? `Showing ${match.label} only.` : "";
+        const match = EVENTS.find((ev) => filterKey(ev.label) === active);
+        const label = match ? (isHomeLabel(match.label) ? "Home fixtures" : match.label) : (active === "home-fixtures" ? "Home fixtures" : "");
+        noteEl.textContent = label ? `Showing ${label} only.` : "";
       }
     }
   }
