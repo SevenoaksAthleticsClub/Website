@@ -143,7 +143,7 @@
   }
 
   function filterKey(label) {
-    return isHomeLabel(label) ? "home-fixtures" : slug(label);
+    return isHomeLabel(label) ? "home" : slug(label);
   }
 
   function uniqueLabels() {
@@ -153,10 +153,10 @@
       const key = filterKey(ev.label);
       if (!seen[key]) {
         seen[key] = true;
-        out.push(key === "home-fixtures" ? "Home fixtures" : ev.label);
+        out.push(key === "home" ? "Home" : ev.label);
       }
     });
-    if (!seen["home-fixtures"]) out.push("Home fixtures");
+    if (!seen.home) out.push("Home");
     return out;
   }
 
@@ -210,7 +210,7 @@
             ${heading}
             <p>${escapeHtml(ev.detail)}</p>
           </div>
-          <span class="tag series-${escapeHtml(filterKey(ev.label))}">${escapeHtml(isHomeLabel(ev.label) ? "Home fixtures" : ev.label)}</span>
+          <span class="tag series-${escapeHtml(filterKey(ev.label))}">${escapeHtml(isHomeLabel(ev.label) ? "Home" : ev.label)}</span>
         </article>`;
   }
 
@@ -253,7 +253,7 @@
         noteEl.textContent = "Click a race name to open its entry page. Weekly training is listed above.";
       } else {
         const match = EVENTS.find((ev) => filterKey(ev.label) === active);
-        const label = match ? (isHomeLabel(match.label) ? "Home fixtures" : match.label) : (active === "home-fixtures" ? "Home fixtures" : "");
+        const label = match ? (isHomeLabel(match.label) ? "Home" : match.label) : (active === "home" ? "Home" : "");
         noteEl.textContent = label ? `Showing ${label} only.` : "";
       }
     }
