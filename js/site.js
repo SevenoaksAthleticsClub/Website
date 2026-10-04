@@ -197,16 +197,48 @@ function setupTabs() {
 function setupForm() {
   const form = document.querySelector("[data-contact-form]");
   if (!form) return;
-  form.addEventListener("submit", (e) => {
+  const note = form.querySelector(".form-note");
+  const button = form.querySelector("button[type=submit]");
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (!form.reportValidity()) return;
     const data = Object.fromEntries(new FormData(form));
-    const subject = encodeURIComponent(data.subject || "Sevenoaks AC enquiry");
-    const body = encodeURIComponent(
-      `Name: ${data.name}\nEmail: ${data.email}\n\n${data.message}`
-    );
-    const to = /welfare/i.test(data.subject || "") ? "paul@7oaks-ac.org.uk" : "sevenoaksac@7oaks-ac.org.uk";
-    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
-    const note = form.querySelector(".form-note");
-    if (note) note.textContent = `Opening your email app — if nothing happens, write to ${to}.`;
+    if (data._honey) {
+      if (note) note.textContent = "Message sent. The club will reply to the email address you gave.";
+      form.reset();
+      return;
+    }
+    const to = /welfare/i.test(data.subject || "") ? "paul@7oaks-ac.org.uk" : "hello@7oaks-ac.org.uk";
+    if (button) button.disabled = true;
+    if (note) note.textContent = "Sending…";
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(to), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          subject: data.subject,
+          message: data.message,
+          _subject: "Sevenoaks AC — " + (data.subject || "enquiry"),
+          _replyto: data.email,
+          _captcha: "false",
+          _template: "table"
+        })
+      });
+      const result = await response.json().catch(() => ({}));
+      const failed = !response.ok || result.success === false || result.success === "false";
+      if (failed && /activat/i.test(result.message || "")) {
+        if (note) note.textContent = "Almost there. Open the confirmation email sent to " + to + ", click the link, then send this message again.";
+        return;
+      }
+      if (failed) throw new Error(result.message || "Could not send");
+      form.reset();
+      if (note) note.textContent = "Message sent. The club will reply to the email address you gave.";
+    } catch (err) {
+      if (note) note.textContent = "That didn’t send. Please email " + to + " directly.";
+    } finally {
+      if (button) button.disabled = false;
+    }
   });
 }
