@@ -204,7 +204,7 @@ function setupForm() {
     const body = encodeURIComponent(
       `Name: ${data.name}\nEmail: ${data.email}\n\n${data.message}`
     );
-    const to = /welfare/i.test(data.subject || "") ? "paul@7oaks-ac.org.uk" : "membership@7oaks-ac.org.uk";
+    const to = /welfare/i.test(data.subject || "") ? "paul@7oaks-ac.org.uk" : "sevenoaksac@7oaks-ac.org.uk";
     window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
     const note = form.querySelector(".form-note");
     if (note) note.textContent = `Opening your email app — if nothing happens, write to ${to}.`;
