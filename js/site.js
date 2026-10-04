@@ -126,7 +126,7 @@
             <ul>
               <li>Kerri Folkesson</li>
               <li>Membership secretary</li>
-              <li><a href="mailto:membership@7oaks-ac.org.uk">membership@7oaks-ac.org.uk</a></li>
+              <li><a data-m="pihsrebmem" href="#"></a></li>
             </ul>
           </div>
         </div>
@@ -149,7 +149,26 @@
   markNextSession();
   setupTabs();
   setupForm();
+  revealMailboxes(document);
 })();
+
+// data-m is the mailbox name reversed, so the address is not written out in the page.
+function clubMailbox(reversedLocal) {
+  const local = reversedLocal.split("").reverse().join("");
+  return local + String.fromCharCode(64) + ["7oaks-ac", "org", "uk"].join(".");
+}
+
+function revealMailboxes(scope) {
+  scope.querySelectorAll("[data-m]").forEach((el) => {
+    const address = clubMailbox(el.getAttribute("data-m"));
+    if (el.tagName === "A") {
+      el.setAttribute("href", "mailto:" + address);
+      if (!el.textContent.trim()) el.textContent = address;
+    } else {
+      el.textContent = address;
+    }
+  });
+}
 
 function markNextSession() {
   const cards = document.querySelectorAll("[data-session]");
@@ -208,7 +227,7 @@ function setupForm() {
       form.reset();
       return;
     }
-    const to = /welfare/i.test(data.subject || "") ? "paul@7oaks-ac.org.uk" : "hello@7oaks-ac.org.uk";
+    const to = /welfare/i.test(data.subject || "") ? clubMailbox("luap") : clubMailbox("olleh");
     if (button) button.disabled = true;
     if (note) note.textContent = "Sending…";
     try {
