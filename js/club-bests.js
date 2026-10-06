@@ -351,15 +351,24 @@
       .catch(() => {});
   }
 
+  function rowsFromCsv(text, tab) {
+    const rows = parseCsvTable(text, tab.kind);
+    if (!rows.length) throw new Error("empty");
+    return rows;
+  }
+
   function loadViaCsv(tab) {
-    return fetch(siteRoot + "api/sheet-csv?gid=" + encodeURIComponent(tab.gid)).then((res) => {
-      if (!res.ok) throw new Error("csv");
-      return res.text();
-    }).then((text) => {
-      const rows = parseCsvTable(text, tab.kind);
-      if (!rows.length) throw new Error("empty");
-      return rows;
-    });
+    const gid = encodeURIComponent(tab.gid);
+    // gviz stores Performance as a number, so marks such as 1:31.92 come back empty.
+    const published =
+      "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=" + gid;
+    const local = siteRoot + "api/sheet-csv?gid=" + gid;
+    const read = (url) =>
+      fetch(url).then((res) => {
+        if (!res.ok) throw new Error("csv");
+        return res.text();
+      }).then((text) => rowsFromCsv(text, tab));
+    return read(published).catch(() => read(local));
   }
 
   function loadViaGviz(tab) {
