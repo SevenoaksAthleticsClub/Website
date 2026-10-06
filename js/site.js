@@ -160,7 +160,7 @@ function clubMailbox(reversedLocal) {
 
 function clubRecipients(subject) {
   const text = String(subject || "");
-  if (/welfare/i.test(text)) return [clubMailbox("eraflew"), clubMailbox("pihsrebmem")];
+  if (/welfare/i.test(text)) return [clubMailbox("eraflew")];
   if (/first run/i.test(text)) return [clubMailbox("olleh")];
   return [clubMailbox("pihsrebmem")];
 }
@@ -268,12 +268,9 @@ function setupForm() {
     try {
       const results = [];
       for (const address of to) results.push(await sendClubMessage(address, data));
-      const pending = results.filter((item) => item.activation).map((item) => item.address);
-      if (pending.length) {
-        if (note) note.textContent = "Almost there. Open the confirmation email sent to " + pending.join(" and ") + ", click the link, then send this message again.";
-        return;
-      }
-      if (results.some((item) => item.failed)) throw new Error("Could not send");
+      // An activated address can still get this reply, and the enquiry is delivered anyway.
+      const failed = results.filter((item) => item.failed && !item.activation);
+      if (failed.length) throw new Error("Could not send");
       form.reset();
       if (note) note.textContent = "Message sent. The club will reply to the email address you gave.";
     } catch (err) {
