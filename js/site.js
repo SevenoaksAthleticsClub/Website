@@ -158,6 +158,13 @@ function clubMailbox(reversedLocal) {
   return local + String.fromCharCode(64) + ["7oaks-ac", "org", "uk"].join(".");
 }
 
+function clubRecipients(subject) {
+  const text = String(subject || "");
+  if (/welfare/i.test(text)) return [clubMailbox("eraflew"), clubMailbox("pihsrebmem")];
+  if (/first run/i.test(text)) return [clubMailbox("olleh")];
+  return [clubMailbox("pihsrebmem")];
+}
+
 function revealMailboxes(scope) {
   scope.querySelectorAll("[data-m]").forEach((el) => {
     const address = clubMailbox(el.getAttribute("data-m"));
@@ -213,6 +220,34 @@ function setupTabs() {
   }
 }
 
+async function sendClubMessage(address, data) {
+  try {
+    const response = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(address), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        name: data.name,
+        email: data.email,
+        subject: data.subject,
+        message: data.message,
+        _subject: "Sevenoaks AC — " + (data.subject || "enquiry"),
+        _replyto: data.email,
+        _captcha: "false",
+        _template: "table"
+      })
+    });
+    const result = await response.json().catch(() => ({}));
+    const failed = !response.ok || result.success === false || result.success === "false";
+    return {
+      address: address,
+      failed: failed,
+      activation: failed && /activat/i.test(String(result.message || ""))
+    };
+  } catch (err) {
+    return { address: address, failed: true, activation: false };
+  }
+}
+
 function setupForm() {
   const form = document.querySelector("[data-contact-form]");
   if (!form) return;
@@ -227,35 +262,22 @@ function setupForm() {
       form.reset();
       return;
     }
-    const to = /welfare/i.test(data.subject || "") ? clubMailbox("luap") : clubMailbox("olleh");
+    const to = clubRecipients(data.subject);
     if (button) button.disabled = true;
     if (note) note.textContent = "Sending…";
     try {
-      const response = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(to), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          subject: data.subject,
-          message: data.message,
-          _subject: "Sevenoaks AC — " + (data.subject || "enquiry"),
-          _replyto: data.email,
-          _captcha: "false",
-          _template: "table"
-        })
-      });
-      const result = await response.json().catch(() => ({}));
-      const failed = !response.ok || result.success === false || result.success === "false";
-      if (failed && /activat/i.test(result.message || "")) {
-        if (note) note.textContent = "Almost there. Open the confirmation email sent to " + to + ", click the link, then send this message again.";
+      const results = [];
+      for (const address of to) results.push(await sendClubMessage(address, data));
+      const pending = results.filter((item) => item.activation).map((item) => item.address);
+      if (pending.length) {
+        if (note) note.textContent = "Almost there. Open the confirmation email sent to " + pending.join(" and ") + ", click the link, then send this message again.";
         return;
       }
-      if (failed) throw new Error(result.message || "Could not send");
+      if (results.some((item) => item.failed)) throw new Error("Could not send");
       form.reset();
       if (note) note.textContent = "Message sent. The club will reply to the email address you gave.";
     } catch (err) {
-      if (note) note.textContent = "That didn’t send. Please email " + to + " directly.";
+      if (note) note.textContent = "That didn’t send. Please email " + to.join(" and ") + " directly.";
     } finally {
       if (button) button.disabled = false;
     }
