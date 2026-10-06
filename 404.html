@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found — Sevenoaks Athletics Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script>
+    (function () {
+      var path = location.pathname.replace(/^\/Website(?=\/)/i, "").replace(/\/+$/, "") || "/";
+      var rules = [
+        [/^\/sevenoaks-7\/?$/i, "/sevenoaks-7.html"],
+        [/^\/sac-grand-prix(?:\/|$)/i, "/grand-prix.html"],
+        [/^\/results(?:-\d+)?(?:\/|$)/i, "/race-results.html"],
+        [/^\/reports(?:-\d+)?(?:\/|$)/i, "/past.html"],
+        [/^\/news\/?$/i, "/past.html"],
+        [/^\/how-to-join(?:\/|$)/i, "/join.html"],
+        [/^\/joining(?:\/|$)/i, "/join.html"],
+        [/^\/contact(?:-us)?(?:-\d+)?(?:\/|$)/i, "/join.html"],
+        [/^\/about-sevenoaks-ac\/187/i, "/juniors.html"],
+        [/^\/about-sevenoaks-ac\/186/i, "/join.html"],
+        [/^\/about-sevenoaks-ac\/190/i, "/about.html"],
+        [/^\/about-sevenoaks-ac\/192/i, "/policies.html"],
+        [/^\/about-sevenoaks-ac\/?$/i, "/about.html"],
+        [/^\/young-athletes(?:\/|$)/i, "/juniors.html"],
+        [/^\/juniors\/?$/i, "/juniors.html"],
+        [/^\/training(?:\/|$)/i, "/train.html"],
+        [/^\/events(?:\/|$)/i, "/events.html"],
+        [/^\/members(?:\/|$)/i, "/members.html"]
+      ];
+      for (var i = 0; i < rules.length; i++) {
+        if (rules[i][0].test(path)) {
+          window.sacRedirecting = true;
+          location.replace(rules[i][1] + location.search + location.hash);
+          return;
+        }
+      }
+      var article = path.match(/\/(\d{2,}-[^/?#]+?)(?:\.html)?$/);
+      if (!article) return;
+      var slug = article[1];
+      var fromJuniors = /^\/juniors\//i.test(path);
+      var first = (fromJuniors ? "/reports/juniors/" : "/reports/") + slug + ".html";
+      var second = (fromJuniors ? "/reports/" : "/reports/juniors/") + slug + ".html";
+      window.sacRedirecting = true;
+      var fallback = /^\/sevenoaks-7\//i.test(path) ? "/sevenoaks-7.html" : fromJuniors ? "/juniors-reports.html" : "/past.html";
+      function exists(url) {
+        return fetch(url, { method: "GET" }).then(function (res) { return res.ok; }, function () { return false; });
+      }
+      exists(first).then(function (ok) {
+        if (ok) location.replace(first);
+        else return exists(second).then(function (ok2) { location.replace(ok2 ? second : fallback); });
+      });
+    })();
+  </script>
+</head>
+<body data-page="missing" data-root="/" hidden>
+  <a class="skip" href="#main">Skip to content</a>
+  <div data-header></div>
+  <main id="main">
+    <section>
+      <div class="wrap">
+        <p class="kicker">Sevenoaks Athletics Club</p>
+        <h1 class="display">That page has moved.</h1>
+        <p class="lead">The old website address no longer has its own page. The same material is on the new site.</p>
+        <p>
+          <a class="btn btn-primary" href="/">Home</a>
+          <a class="btn btn-line" href="/past.html">Reports</a>
+          <a class="btn btn-line" href="/juniors.html">Juniors</a>
+          <a class="btn btn-line" href="/join.html">Join</a>
+        </p>
+      </div>
+    </section>
+  </main>
+  <div data-footer></div>
+  <script src="/js/site.js"></script>
+  <script>if (!window.sacRedirecting) document.body.hidden = false;</script>
+</body>
+</html>
