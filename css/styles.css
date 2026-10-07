@@ -314,6 +314,9 @@ button, input, select, textarea { font: inherit; }
 .page-hero img.hero-bg {
   object-position: center top;
 }
+.page-hero img.hero-bg.join-hero {
+  object-position: center 62%;
+}
 .page-hero .hero-copy { padding: 4.5rem 0 3rem; }
 
 /* Buttons */
