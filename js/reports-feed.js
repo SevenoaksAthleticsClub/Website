@@ -143,17 +143,55 @@
     return text.slice(0, 177).replace(/\s+\S*$/, "") + "…";
   }
 
-  function formatBody(raw) {
-    const value = String(raw || "").trim();
-    if (!value) return "<p>No write-up yet.</p>";
-    if (/<[a-z][\s\S]*>/i.test(value)) {
-      return value
-        .replace(/<script[\s\S]*?<\/script>/gi, "")
-        .replace(/\son\w+="[^"]*"/gi, "");
+  function decodeBasic(str) {
+    return String(str)
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+  }
+
+  function safeAnchor(attrs, inner) {
+    const quoted = String(attrs || "").match(/\bhref\s*=\s*("([^"]*)"|'([^']*)')/i);
+    const href = decodeBasic(quoted ? quoted[2] || quoted[3] || "" : "").trim();
+    const text = escapeHtml(String(inner || "").replace(/<[^>]+>/g, ""));
+    if (!/^https?:\/\//i.test(href) || /[\s<>]/.test(href)) return text;
+    return '<a href="' + escapeHtml(href) + '">' + text + "</a>";
+  }
+
+  // Keep an <a> link written in the sheet, and escape every other tag.
+  function inlineHtml(block) {
+    const re = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi;
+    let out = "";
+    let last = 0;
+    let match;
+    while ((match = re.exec(block))) {
+      out += escapeHtml(block.slice(last, match.index));
+      out += safeAnchor(match[1], match[2]);
+      last = match.index + match[0].length;
     }
+    out += escapeHtml(block.slice(last));
+    return out;
+  }
+
+  function formatBody(raw) {
+    const value = String(raw || "")
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*')/gi, "")
+      .trim();
+    if (!value) return "<p>No write-up yet.</p>";
+    // A body that already uses paragraphs or other blocks is left as HTML.
+    // A normal write-up, including one with a results link, keeps its blank lines.
+    if (/<(p|div|ul|ol|li|h[1-6]|table|blockquote|figure)\b/i.test(value)) return value;
     return value
       .split(/\n{2,}/)
-      .map((block) => "<p>" + escapeHtml(block).replace(/\n/g, "<br>") + "</p>")
+      .map((block) => {
+        const trimmed = block.trim();
+        if (!trimmed) return "";
+        return "<p>" + inlineHtml(trimmed).replace(/\n/g, "<br>") + "</p>";
+      })
+      .filter(Boolean)
       .join("\n");
   }
 
