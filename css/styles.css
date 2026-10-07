@@ -979,12 +979,15 @@ html.reports-pending [data-home-reports] {
 .report-gallery img {
   width: 100%;
   height: auto;
-  aspect-ratio: auto;
-  object-fit: contain;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
   object-position: center top;
   margin: 0;
   max-height: none;
   border-radius: 12px;
+}
+.report-gallery:has(> :only-child) img {
+  aspect-ratio: 16 / 9;
 }
 .report-photo {
   margin: 0 0 1.5rem;
@@ -1003,11 +1006,14 @@ html.reports-pending [data-home-reports] {
   width: auto;
   max-width: 100%;
   height: auto;
-  max-height: 40rem;
-  aspect-ratio: auto;
-  object-fit: contain;
+  max-height: 22rem;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
   object-position: center top;
-  margin: 0 auto;
+  margin: 0.9rem auto;
+}
+.report-body .report-gallery:has(> :only-child) img {
+  aspect-ratio: 16 / 9;
 }
 .report-photo img {
   margin: 0 auto;
