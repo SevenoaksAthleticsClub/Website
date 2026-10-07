@@ -150,7 +150,48 @@
   setupTabs();
   setupForm();
   revealMailboxes(document);
+  pinHeroFocus();
 })();
+
+// Keep one point in the photo (data-focus-x/y, percent) in the middle of the
+// hero, so a wide desktop banner and a taller phone banner frame the same spot.
+function pinHeroFocus() {
+  const images = document.querySelectorAll(".join-hero");
+  if (!images.length) return;
+
+  function axis(focal, rendered, box) {
+    if (rendered <= box + 0.5) return 50;
+    const pos = ((focal * rendered - box / 2) / (rendered - box)) * 100;
+    return Math.min(100, Math.max(0, pos));
+  }
+
+  function place(img) {
+    const boxW = img.clientWidth;
+    const boxH = img.clientHeight;
+    const natW = img.naturalWidth;
+    const natH = img.naturalHeight;
+    if (!boxW || !boxH || !natW || !natH) return;
+    const scale = Math.max(boxW / natW, boxH / natH);
+    const fx = Number(img.dataset.focusX || 50) / 100;
+    const fy = Number(img.dataset.focusY || 50) / 100;
+    img.style.objectPosition =
+      axis(fx, natW * scale, boxW) + "% " + axis(fy, natH * scale, boxH) + "%";
+  }
+
+  function placeAll() {
+    images.forEach(place);
+  }
+
+  images.forEach((img) => {
+    if (img.complete) place(img);
+    else img.addEventListener("load", () => place(img));
+  });
+  window.addEventListener("resize", placeAll);
+  if (window.ResizeObserver) {
+    const observer = new ResizeObserver(placeAll);
+    images.forEach((img) => observer.observe(img));
+  }
+}
 
 // data-m is the mailbox name reversed, so the address is not written out in the page.
 function clubMailbox(reversedLocal) {

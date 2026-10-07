@@ -315,7 +315,8 @@ button, input, select, textarea { font: inherit; }
   object-position: center top;
 }
 .page-hero img.hero-bg.join-hero {
-  object-position: center 62%;
+  /* Runners' faces. site.js keeps this point in the middle of the banner. */
+  object-position: center 46%;
 }
 .page-hero .hero-copy { padding: 4.5rem 0 3rem; }
 
