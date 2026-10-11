@@ -3,6 +3,7 @@
   if (!root) return;
 
   const SHEET_ID = "11e8-4Uf5cP1nP3oH8ztnmiRfSqsP3f0xBIBbmAOiwHQ";
+  const RESULTS_GID = "814631639";
   const CALLBACK = "sacResultsFromSheet";
 
   function cellValue(cell) {
@@ -65,8 +66,68 @@
     return -1;
   }
 
+  function parseCsv(text) {
+    const rows = [];
+    let row = [];
+    let cur = "";
+    let quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (quoted) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else quoted = false;
+        } else cur += ch;
+      } else if (ch === '"') quoted = true;
+      else if (ch === ",") {
+        row.push(cur);
+        cur = "";
+      } else if (ch === "\n") {
+        row.push(cur);
+        rows.push(row);
+        row = [];
+        cur = "";
+      } else if (ch !== "\r") cur += ch;
+    }
+    if (cur.length || row.length) {
+      row.push(cur);
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  function rowsFromCsv(text) {
+    const table = parseCsv(text).filter((row) => row.some((cell) => String(cell || "").trim()));
+    if (!table.length) return [];
+    const cols = table[0].map((cell) => String(cell || "").toLowerCase().trim());
+    return finishRows(
+      table.slice(1).map((row) => {
+        const cells = cols.map((_, i) => ({ v: row[i] == null ? "" : row[i] }));
+        return { c: cells };
+      }),
+      cols
+    );
+  }
+
   function parseTable(table) {
     const cols = (table.cols || []).map((c) => String(c.label || "").toLowerCase().trim());
+    return finishRows(table.rows || [], cols);
+  }
+
+  function isFieldEvent(distance) {
+    return /jump|vault|discus|hammer|javelin|shot|throw|weight/i.test(distance);
+  }
+
+  function formatMark(distance, time) {
+    const mark = String(time || "").trim();
+    if (!mark || !isFieldEvent(distance) || /:/.test(mark) || /m$/i.test(mark)) return mark;
+    if (/^-?\d+(\.\d+)?$/.test(mark)) return mark + "m";
+    return mark;
+  }
+
+  function finishRows(rows, cols) {
     const iDate = findCol(cols, ["date"]);
     const iRace = findCol(cols, ["race"]);
     const iDist = findCol(cols, ["distance"]);
@@ -76,7 +137,7 @@
     const iGp = findCol(cols, ["gp", "new gp"]);
     const iType = findCol(cols, ["type"]);
     if (iRace < 0 || iName < 0) return [];
-    return (table.rows || [])
+    return rows
       .map((row) => {
         const c = row.c || [];
         const name = cellValue(c[iName]).trim();
@@ -93,7 +154,7 @@
           distance: iDist >= 0 ? cellValue(c[iDist]).trim() : "",
           position: iPos >= 0 ? cellValue(c[iPos]).trim() : "",
           name: name,
-          time: iTime >= 0 ? cellValue(c[iTime]).trim() : "",
+          time: iTime >= 0 ? formatMark(iDist >= 0 ? cellValue(c[iDist]) : "", cellValue(c[iTime])) : "",
           gp: gp === "0" ? "" : gp,
           type: type
         };
@@ -224,32 +285,57 @@
     }
   }, 8000);
 
-  window[CALLBACK] = function (payload) {
+  function showRows(rows) {
     clearTimeout(timeout);
-    if (!payload || payload.status !== "ok" || !payload.table) {
-      root.innerHTML = '<p class="sub">Couldn’t read the Results tab.</p>';
-      return;
-    }
-    ROWS = parseTable(payload.table);
+    ROWS = rows;
     if (!ROWS.length) {
       root.innerHTML = '<p class="sub">The Results tab loaded but had no rows.</p>';
       return;
     }
     paint();
-  };
+  }
 
-  const script = document.createElement("script");
-  script.src =
+  function loadGviz() {
+    window[CALLBACK] = function (payload) {
+      if (!payload || payload.status !== "ok" || !payload.table) {
+        clearTimeout(timeout);
+        root.innerHTML = '<p class="sub">Couldn’t read the Results tab.</p>';
+        return;
+      }
+      showRows(parseTable(payload.table));
+    };
+    const script = document.createElement("script");
+    script.src =
+      "https://docs.google.com/spreadsheets/d/" +
+      SHEET_ID +
+      "/gviz/tq?sheet=" +
+      encodeURIComponent("Results") +
+      "&tqx=out:json;responseHandler:" +
+      CALLBACK;
+    script.async = true;
+    script.onerror = function () {
+      clearTimeout(timeout);
+      root.innerHTML = '<p class="sub">Couldn’t load the Results tab from Google Sheets.</p>';
+    };
+    document.head.appendChild(script);
+  }
+
+  // The visualisation feed drops track times and field marks such as 2:15.73 and 2.83.
+  // The CSV export keeps the text Keith entered.
+  fetch(
     "https://docs.google.com/spreadsheets/d/" +
-    SHEET_ID +
-    "/gviz/tq?sheet=" +
-    encodeURIComponent("Results") +
-    "&tqx=out:json;responseHandler:" +
-    CALLBACK;
-  script.async = true;
-  script.onerror = function () {
-    clearTimeout(timeout);
-    root.innerHTML = '<p class="sub">Couldn’t load the Results tab from Google Sheets.</p>';
-  };
-  document.head.appendChild(script);
+      SHEET_ID +
+      "/export?format=csv&gid=" +
+      RESULTS_GID
+  )
+    .then((res) => {
+      if (!res.ok) throw new Error("csv");
+      return res.text();
+    })
+    .then((text) => {
+      const rows = rowsFromCsv(text);
+      if (!rows.length) throw new Error("empty");
+      showRows(rows);
+    })
+    .catch(loadGviz);
 })();
