@@ -4,9 +4,9 @@
 
   const SHEET_ID = "11e8-4Uf5cP1nP3oH8ztnmiRfSqsP3f0xBIBbmAOiwHQ";
   const tabs = [
-    { id: "road", sheet: "GP Road", label: "Road", best: 6, kind: "individual" },
-    { id: "track", sheet: "GP Track", label: "Track and field", best: 3, kind: "individual" },
-    { id: "team", sheet: "GP Team", label: "Team", best: 0, kind: "team" }
+    { id: "road", sheet: "GP Road", gid: "251214793", label: "Road", best: 6, kind: "individual" },
+    { id: "track", sheet: "GP Track", gid: "595647233", label: "Track and field", best: 3, kind: "individual" },
+    { id: "team", sheet: "GP Team", gid: "932058090", label: "Team", best: 0, kind: "team" }
   ];
 
   const panels = {};
@@ -376,7 +376,70 @@
     btn.addEventListener("click", () => showTab(btn.dataset.gpTab));
   });
 
+  function parseCsv(text) {
+    const rows = [];
+    let row = [];
+    let cur = "";
+    let quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (quoted) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else quoted = false;
+        } else cur += ch;
+      } else if (ch === '"') quoted = true;
+      else if (ch === ",") {
+        row.push(cur);
+        cur = "";
+      } else if (ch === "\n") {
+        row.push(cur);
+        rows.push(row);
+        row = [];
+        cur = "";
+      } else if (ch !== "\r") cur += ch;
+    }
+    if (cur.length || row.length) {
+      row.push(cur);
+      rows.push(row);
+    }
+    return rows.filter((cells) => cells.some((cell) => String(cell || "").trim()));
+  }
+
+  function tableFromCsv(text) {
+    const parsed = parseCsv(text);
+    if (parsed.length < 2) return null;
+    const header = parsed[0];
+    return {
+      cols: header.map((label) => ({ label: label, type: "string" })),
+      rows: parsed.slice(1).map((row) => ({
+        c: header.map((_, i) => ({ v: row[i] == null ? "" : row[i] }))
+      }))
+    };
+  }
+
   function loadSheet(tab) {
+    const csvUrl =
+      "https://docs.google.com/spreadsheets/d/" +
+      SHEET_ID +
+      "/export?format=csv&gid=" +
+      tab.gid;
+    return fetch(csvUrl)
+      .then((res) => {
+        if (!res.ok) throw new Error("csv");
+        return res.text();
+      })
+      .then((text) => {
+        const table = tableFromCsv(text);
+        if (!table) throw new Error("empty");
+        return { tab: tab, table: table };
+      })
+      .catch(() => loadSheetGviz(tab));
+  }
+
+  function loadSheetGviz(tab) {
     return new Promise((resolve) => {
       const cb = "sacGp_" + tab.id;
       const timeout = setTimeout(() => resolve({ tab: tab, table: null }), 8000);
