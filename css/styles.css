@@ -405,7 +405,10 @@ section { padding: 4.5rem 0; }
   overflow: hidden;
 }
 .session.next { border-color: var(--brass); }
-.session.next::after {
+.session.next::after,
+.session.is-cancelled::after,
+.session.is-moved::after,
+.session.is-notice::after {
   content: "Next up";
   position: absolute;
   top: 0.9rem;
@@ -419,6 +422,13 @@ section { padding: 4.5rem 0; }
   border-radius: 999px;
   font-weight: 700;
 }
+.session.is-cancelled { border-color: var(--ink); }
+.session.is-cancelled::after { content: "Cancelled"; background: var(--ink); color: var(--cream); }
+.session.is-moved { border-color: var(--brass); }
+.session.is-moved::after { content: "Moved"; }
+.session.is-notice { border-color: var(--navy-soft); }
+.session.is-notice::after { content: "Notice"; background: var(--navy-soft); color: var(--cream); }
+.session-flag { margin: 0.45rem 0 0.75rem; font-weight: 650; color: var(--ink); }
 .session .day {
   font-family: var(--display);
   font-size: 2.6rem;
@@ -761,6 +771,30 @@ textarea { min-height: 140px; resize: vertical; }
   border-radius: 10px;
 }
 .notice strong { color: var(--ember); }
+.training-changes { margin-top: 1.2rem; max-width: 100%; }
+.training-changes + .timetable { margin-top: 1.2rem; }
+.training-changes ul,
+.training-changes li,
+.training-changes p { min-width: 0; max-width: 100%; }
+.training-changes p { white-space: normal; overflow-wrap: break-word; }
+.training-changes h3 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+.training-changes ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+.training-changes li { margin: 0; }
+.training-changes .change-when { margin: 0; font-weight: 650; color: var(--ink); }
+.training-changes li p + p { margin: 0.15rem 0 0; }
 
 /* Tabs */
 .tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.2rem; }
@@ -1263,6 +1297,7 @@ html.reports-pending [data-home-reports] {
     font-size: 0.95rem;
   }
   .section-head { flex-direction: column; align-items: start; }
+  .section-head > * { max-width: 100%; min-width: 0; }
   .hero h1 { font-size: 2.7rem; max-width: 9ch; }
   .hero { min-height: 78vh; }
   .page-hero { min-height: 42vh; }

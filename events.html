@@ -30,30 +30,31 @@
             <div class="section-head">
               <div>
                 <h2>Every week</h2>
-                <p class="sub">These don’t move. Contact us before your first Tuesday.</p>
+                <p class="sub">Same times each week. Any change is listed below. Contact us before your first Tuesday.</p>
               </div>
               <a class="link-more" href="train.html">Training details →</a>
             </div>
             <div class="timetable">
-              <article class="session">
+              <article class="session" data-notice="tuesday">
                 <div class="day">Tue</div>
                 <div class="time">18:15 &amp; 19:00</div>
                 <p>Club run — Speedy and Steady groups, 5 or 7 miles.</p>
                 <p class="where">Sennocke Centre, Sevenoaks School</p>
               </article>
-              <article class="session">
+              <article class="session" data-notice="thursday">
                 <div class="day">Thu</div>
                 <div class="time">18:30</div>
                 <p>Track intervals.</p>
                 <p class="where">Sevenoaks School track</p>
               </article>
-              <article class="session">
+              <article class="session" data-notice="sunday">
                 <div class="day">Sun</div>
                 <div class="time">09:00 – 10:00</div>
                 <p>Senior track session.</p>
                 <p class="where">Sevenoaks School track</p>
               </article>
             </div>
+            <div data-training-changes></div>
           </div>
 
           <div class="series-strip" id="series">
@@ -143,6 +144,7 @@
 
   <div data-footer></div>
   <script src="js/site.js"></script>
+  <script src="js/notices.js"></script>
   <script src="js/calendar.js"></script>
 </body>
 </html>
