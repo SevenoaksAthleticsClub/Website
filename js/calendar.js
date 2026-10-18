@@ -5,6 +5,7 @@
 
   const siteRoot = document.body.dataset.root || "";
   const SHEET_ID = "11e8-4Uf5cP1nP3oH8ztnmiRfSqsP3f0xBIBbmAOiwHQ";
+  const RACES_GID = "365830107";
   const CALLBACK = "sacRacesFromSheet";
   const COMING_UP_LIMIT = 5;
 
@@ -49,6 +50,73 @@
     const t = Date.parse(raw);
     if (!Number.isNaN(t)) return new Date(t).toISOString().slice(0, 10);
     return "";
+  }
+
+  function parseCsv(text) {
+    const rows = [];
+    let row = [];
+    let cur = "";
+    let quoted = false;
+    const src = String(text || "").replace(/^\uFEFF/, "");
+    for (let i = 0; i < src.length; i++) {
+      const ch = src[i];
+      if (quoted) {
+        if (ch === '"') {
+          if (src[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else quoted = false;
+        } else cur += ch;
+      } else if (ch === '"') quoted = true;
+      else if (ch === ",") {
+        row.push(cur);
+        cur = "";
+      } else if (ch === "\n") {
+        row.push(cur);
+        rows.push(row);
+        row = [];
+        cur = "";
+      } else if (ch !== "\r") cur += ch;
+    }
+    if (cur.length || row.length) {
+      row.push(cur);
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  function eventsFromCsv(text) {
+    const table = parseCsv(text);
+    if (table.length < 2) return [];
+    const header = table[0].map((cell) => String(cell || "").trim().toLowerCase());
+    const col = (names) => {
+      for (let i = 0; i < names.length; i++) {
+        const at = header.indexOf(names[i]);
+        if (at >= 0) return at;
+      }
+      return -1;
+    };
+    const iDate = col(["date"]);
+    const iLabel = col(["label", "series"]);
+    const iTitle = col(["title"]);
+    const iDetail = col(["detail"]);
+    const iHref = col(["href", "url", "link", "entry"]);
+    if (iDate < 0 || iLabel < 0 || iTitle < 0) return [];
+    return table
+      .slice(1)
+      .map((cells, order) => {
+        const label = String(cells[iLabel] || "").trim();
+        return {
+          order: order,
+          date: toIso(cells[iDate]),
+          label: label,
+          slug: slug(label),
+          title: String(cells[iTitle] || "").trim(),
+          detail: iDetail >= 0 ? String(cells[iDetail] || "").trim() : "",
+          href: iHref >= 0 ? String(cells[iHref] || "").trim() : ""
+        };
+      })
+      .filter((ev) => ev.date && ev.title && ev.label);
   }
 
   function parseTable(table) {
@@ -299,35 +367,66 @@
     }
   }, 8000);
 
-  window[CALLBACK] = function (payload) {
-    clearTimeout(timeout);
-    try {
-      if (!payload || payload.status !== "ok" || !payload.table) {
-        throw new Error("bad payload");
+  function loadGviz() {
+    window[CALLBACK] = function (payload) {
+      clearTimeout(timeout);
+      try {
+        if (!payload || payload.status !== "ok" || !payload.table) {
+          throw new Error("bad payload");
+        }
+        EVENTS = parseTable(payload.table);
+        if (!EVENTS.length) {
+          showError("The Google Sheet loaded but had no races. Check there is a Label column.");
+          return;
+        }
+        paint();
+      } catch (err) {
+        showError("Couldn’t read the race list from Google Sheets.");
       }
-      EVENTS = parseTable(payload.table);
-      if (!EVENTS.length) {
-        showError("The Google Sheet loaded but had no races. Check there is a Label column.");
-        return;
-      }
-      paint();
-    } catch (err) {
-      showError("Couldn’t read the race list from Google Sheets.");
-    }
-  };
+    };
+    const script = document.createElement("script");
+    script.src =
+      "https://docs.google.com/spreadsheets/d/" +
+      SHEET_ID +
+      "/gviz/tq?sheet=" +
+      encodeURIComponent("Races") +
+      "&tqx=out:json;responseHandler:" +
+      CALLBACK;
+    script.async = true;
+    script.onerror = function () {
+      clearTimeout(timeout);
+      showError("Couldn’t load the race list from Google Sheets.");
+    };
+    document.head.appendChild(script);
+  }
 
-  const script = document.createElement("script");
-  script.src =
+  function load(url) {
+    return fetch(url).then((res) => {
+      if (!res.ok) throw new Error("csv");
+      return res.text();
+    });
+  }
+
+  const published =
+    "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=" + RACES_GID;
+  const local = siteRoot + "api/sheet-csv?gid=" + RACES_GID;
+  const byName =
     "https://docs.google.com/spreadsheets/d/" +
     SHEET_ID +
-    "/gviz/tq?gid=0&tqx=out:json;responseHandler:" +
-    CALLBACK;
-  script.async = true;
-  script.onerror = function () {
-    clearTimeout(timeout);
-    showError("Couldn’t load the race list from Google Sheets.");
-  };
-  document.head.appendChild(script);
+    "/gviz/tq?tqx=out:csv&sheet=" +
+    encodeURIComponent("Races");
+
+  load(published)
+    .catch(() => load(local))
+    .catch(() => load(byName))
+    .then((text) => {
+      const rows = eventsFromCsv(text);
+      if (!rows.length) throw new Error("empty");
+      clearTimeout(timeout);
+      EVENTS = rows;
+      paint();
+    })
+    .catch(loadGviz);
 
   fetch(siteRoot + "data/race-entry.json")
     .then((res) => (res.ok ? res.json() : []))
