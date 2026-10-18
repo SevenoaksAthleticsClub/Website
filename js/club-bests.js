@@ -12,7 +12,7 @@
     { sheet: "Club Bests T&F", kind: "track", gid: "267925596", callback: "sacBestsTrack" },
     { sheet: "Club Bests Road", kind: "road", gid: "333762967", callback: "sacBestsRoad" }
   ];
-  const juniorTab = { sheet: "Club Bests Juniors", kind: "track", callback: "sacBestsJuniors" };
+  const juniorTab = { sheet: "Junior Club Bests", kind: "track", gid: "33264977", callback: "sacBestsJuniors" };
 
   function esc(value) {
     return String(value || "")
