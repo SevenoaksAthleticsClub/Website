@@ -95,7 +95,7 @@
     }
     const http = value.match(/https?:\/\/[^\s"']+/i);
     if (http) return { folderId: "", image: http[0] };
-    return { folderId: "", image: value };
+    return { folderId: "", image: "" };
   }
 
   function collectMedia(cells, imageIndexes) {
@@ -109,10 +109,8 @@
         images.push(parsed.image);
       }
     }
-    imageIndexes.forEach((i) => add(parseImageCell(cellValue(cells[i]))));
-    if (!images.length && !folderId) {
-      (cells || []).forEach((cell) => add(parseImageCell(cellValue(cell))));
-    }
+    const sources = imageIndexes.length ? imageIndexes.map((i) => cells[i]) : cells || [];
+    sources.forEach((cell) => add(parseImageCell(cellValue(cell))));
     return { folderId: folderId, images: images, image: images[0] || "" };
   }
 
