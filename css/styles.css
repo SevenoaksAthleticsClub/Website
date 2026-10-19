@@ -1080,7 +1080,7 @@ html.reports-pending [data-home-reports] {
 .report-body .report-gallery:has(> :only-child) img {
   aspect-ratio: 16 / 9;
 }
-.report-body .report-gallery img.is-portrait,
+.report-body .report-gallery:not(:has(> :nth-child(3))) img.is-portrait,
 .report-body .report-photo img.is-portrait {
   aspect-ratio: auto;
   object-fit: contain;
@@ -1090,25 +1090,25 @@ html.reports-pending [data-home-reports] {
   height: auto;
   max-height: 22rem;
 }
-.report-body .report-gallery:has(img.is-portrait) {
+.report-body .report-gallery:has(img.is-portrait):not(:has(> :nth-child(3))) {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
   justify-items: center;
   gap: 1rem 1.25rem;
 }
-.report-body .report-gallery:has(img.is-portrait) > a {
+.report-body .report-gallery:has(img.is-portrait):not(:has(> :nth-child(3))) > a {
   display: flex;
   justify-content: center;
   align-items: center;
   min-width: 0;
   max-width: 100%;
 }
-.report-body .report-gallery:has(img.is-portrait) > img {
+.report-body .report-gallery:has(img.is-portrait):not(:has(> :nth-child(3))) > img {
   min-width: 0;
   max-width: 100%;
 }
-.report-body .report-gallery:has(img.is-portrait) img {
+.report-body .report-gallery:has(img.is-portrait):not(:has(> :nth-child(3))) img {
   width: auto;
   max-width: 100%;
   height: auto;
@@ -1118,13 +1118,37 @@ html.reports-pending [data-home-reports] {
   object-position: center;
   margin: 0;
 }
-.report-body .report-gallery:has(img.is-portrait):has(> :only-child) {
+.report-body .report-gallery:has(img.is-portrait):not(:has(> :nth-child(3))):has(> :only-child) {
   grid-template-columns: minmax(0, 20rem);
   justify-content: center;
 }
-.report-body .report-gallery:has(img.is-portrait) > :last-child:nth-child(odd):not(:only-child) {
+.report-body .report-gallery:has(img.is-portrait):not(:has(> :nth-child(3))) > :last-child:nth-child(odd):not(:only-child) {
   grid-column: 1 / -1;
   max-width: calc(50% - 0.7rem);
+}
+.report-body .report-gallery:has(img.is-tall):has(> :nth-child(3)) > a:has(img.is-tall) {
+  grid-row: span 2;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+.report-body .report-gallery:has(img.is-tall):has(> :nth-child(3)) > a:has(img.is-tall) img {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+  aspect-ratio: auto;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 12px;
+  transform: translateX(-50%);
 }
 .report-photo img {
   margin: 0 auto;
@@ -1381,6 +1405,34 @@ html.reports-pending [data-home-reports] {
   }
   .report-gallery:has(> :only-child) { grid-template-columns: 1fr; }
   .report-gallery img { height: auto; }
+  .report-body .report-gallery:has(img.is-portrait):has(> :nth-child(3)) {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 0.8rem;
+  }
+  .report-body .report-gallery:has(img.is-portrait):has(> :nth-child(3)) > a,
+  .report-body .report-gallery:has(img.is-portrait):has(> :nth-child(3)) > img,
+  .report-body .report-gallery:has(img.is-portrait):has(> :nth-child(3)) > a:has(img.is-portrait) {
+    display: block;
+    grid-row: auto;
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+  }
+  .report-body .report-gallery:has(img.is-portrait):has(> :nth-child(3)) img,
+  .report-body .report-gallery:has(img.is-portrait):has(> :nth-child(3)) > a:has(img.is-portrait) img {
+    position: static;
+    inset: auto;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 48rem;
+    aspect-ratio: auto;
+    object-fit: contain;
+    object-position: center;
+    margin: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

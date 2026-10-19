@@ -223,7 +223,10 @@ function markReportPortraits(root) {
   const scope = root && root.querySelectorAll ? root : document;
   scope.querySelectorAll(".report-gallery img, .report-photo img").forEach((img) => {
     function check() {
-      if (img.naturalWidth && img.naturalHeight > img.naturalWidth) img.classList.add("is-portrait");
+      if (img.naturalWidth && img.naturalHeight > img.naturalWidth) {
+        img.classList.add("is-portrait");
+        if (img.naturalHeight > img.naturalWidth * 1.85) img.classList.add("is-tall");
+      }
     }
     if (img.complete) check();
     else img.addEventListener("load", check);
