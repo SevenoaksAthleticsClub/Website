@@ -359,6 +359,15 @@
       gallery +
       formatBody(item.body) +
       `<p class="report-back"><a class="link-more" href="${escapeHtml(backHref)}">${escapeHtml(backLabel)}</a></p>`;
+    articleEl.querySelectorAll(".report-gallery img, .report-photo img").forEach(markPortrait);
+  }
+
+  function markPortrait(img) {
+    function check() {
+      if (img.naturalWidth && img.naturalHeight > img.naturalWidth) img.classList.add("is-portrait");
+    }
+    if (img.complete) check();
+    else img.addEventListener("load", check);
   }
 
   function loadFolderImages(folderId) {

@@ -1080,6 +1080,16 @@ html.reports-pending [data-home-reports] {
 .report-body .report-gallery:has(> :only-child) img {
   aspect-ratio: 16 / 9;
 }
+.report-body .report-gallery img.is-portrait,
+.report-body .report-photo img.is-portrait {
+  aspect-ratio: auto;
+  object-fit: contain;
+  object-position: center;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 22rem;
+}
 .report-photo img {
   margin: 0 auto;
 }
