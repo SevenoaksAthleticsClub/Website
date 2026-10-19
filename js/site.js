@@ -147,6 +147,7 @@
   }
 
   markNextSession();
+  markReportPortraits();
   setupTabs();
   setupForm();
   revealMailboxes(document);
@@ -215,6 +216,17 @@ function revealMailboxes(scope) {
     } else {
       el.textContent = address;
     }
+  });
+}
+
+function markReportPortraits(root) {
+  const scope = root && root.querySelectorAll ? root : document;
+  scope.querySelectorAll(".report-gallery img, .report-photo img").forEach((img) => {
+    function check() {
+      if (img.naturalWidth && img.naturalHeight > img.naturalWidth) img.classList.add("is-portrait");
+    }
+    if (img.complete) check();
+    else img.addEventListener("load", check);
   });
 }
 

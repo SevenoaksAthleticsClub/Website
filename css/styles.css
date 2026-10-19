@@ -1090,6 +1090,42 @@ html.reports-pending [data-home-reports] {
   height: auto;
   max-height: 22rem;
 }
+.report-body .report-gallery:has(img.is-portrait) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  gap: 1rem 1.25rem;
+}
+.report-body .report-gallery:has(img.is-portrait) > a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+}
+.report-body .report-gallery:has(img.is-portrait) > img {
+  min-width: 0;
+  max-width: 100%;
+}
+.report-body .report-gallery:has(img.is-portrait) img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 22rem;
+  aspect-ratio: auto;
+  object-fit: contain;
+  object-position: center;
+  margin: 0;
+}
+.report-body .report-gallery:has(img.is-portrait):has(> :only-child) {
+  grid-template-columns: minmax(0, 20rem);
+  justify-content: center;
+}
+.report-body .report-gallery:has(img.is-portrait) > :last-child:nth-child(odd):not(:only-child) {
+  grid-column: 1 / -1;
+  max-width: calc(50% - 0.7rem);
+}
 .report-photo img {
   margin: 0 auto;
 }
