@@ -359,14 +359,14 @@
       gallery +
       formatBody(item.body) +
       `<p class="report-back"><a class="link-more" href="${escapeHtml(backHref)}">${escapeHtml(backLabel)}</a></p>`;
-    articleEl.querySelectorAll(".report-gallery img, .report-photo img").forEach(markPortrait);
+    articleEl.querySelectorAll(".report-photo img").forEach(markPortrait);
+    if (typeof frameReportPhotos === "function") frameReportPhotos();
   }
 
   function markPortrait(img) {
     function check() {
       if (img.naturalWidth && img.naturalHeight > img.naturalWidth) {
         img.classList.add("is-portrait");
-        if (img.naturalHeight > img.naturalWidth * 1.85) img.classList.add("is-tall");
       }
     }
     if (img.complete) check();

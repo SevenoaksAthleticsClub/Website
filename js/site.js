@@ -148,6 +148,7 @@
 
   markNextSession();
   markReportPortraits();
+  frameReportPhotos();
   setupTabs();
   setupForm();
   revealMailboxes(document);
@@ -221,15 +222,30 @@ function revealMailboxes(scope) {
 
 function markReportPortraits(root) {
   const scope = root && root.querySelectorAll ? root : document;
-  scope.querySelectorAll(".report-gallery img, .report-photo img").forEach((img) => {
+  scope.querySelectorAll(".report-photo img").forEach((img) => {
     function check() {
       if (img.naturalWidth && img.naturalHeight > img.naturalWidth) {
         img.classList.add("is-portrait");
-        if (img.naturalHeight > img.naturalWidth * 1.85) img.classList.add("is-tall");
       }
     }
     if (img.complete) check();
     else img.addEventListener("load", check);
+  });
+}
+
+function frameReportPhotos() {
+  document.querySelectorAll(".report-gallery img").forEach((img) => {
+    const apply = () => {
+      if (!img.naturalWidth || !img.naturalHeight) return;
+      const tile = img.parentElement && img.parentElement.matches(".report-gallery > a")
+        ? img.parentElement
+        : img;
+      const landscape = img.naturalWidth >= img.naturalHeight;
+      tile.classList.toggle("is-landscape", landscape);
+      tile.classList.toggle("is-portrait", !landscape);
+    };
+    if (img.complete) apply();
+    else img.addEventListener("load", apply, { once: true });
   });
 }
 
